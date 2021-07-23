@@ -4,10 +4,10 @@
       <q-toolbar>
 
         <q-toolbar-title>
-          FireChat
+          {{isAuthenticated?user.email:'Firechat'}}
         </q-toolbar-title>
         <div>
-          <q-btn color="negative">Salir</q-btn>
+          <q-btn color="negative" v-if="isAuthenticated" @click="salir">Salir</q-btn>
         </div>
       </q-toolbar>
     </q-header>
@@ -19,8 +19,10 @@
 
 <script>
 
-
+import firebase from 'firebase'
+import { useAuth } from '@vueuse/firebase/useAuth'
 import { ref } from 'vue'
+import { auth } from 'boot/firebase'
 export default {
   name: 'MainLayout',
 
@@ -28,8 +30,18 @@ export default {
   },
 
   setup () {
-
+    const { isAuthenticated, user } = useAuth(firebase.auth)
+    const salir= async()=>{
+      try {
+        auth.signOut();
+      } catch (error) {
+        console.log(error);
+      }
+    }
     return {
+      isAuthenticated,
+      user,
+      salir
     }
   }
 }

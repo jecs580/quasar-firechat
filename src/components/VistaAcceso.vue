@@ -23,18 +23,29 @@
 </template>
 <script>
 import { ref } from 'vue'
+import { auth } from 'boot/firebase'
+
 export default {
     setup(){
-        const email =ref('')
-        const password =ref('')
+        const email =ref('sanchezenrique580@gmail.com')
+        const password =ref('123456')
         const acceder =  ref(true)
+        
         const procesarFormulario = async()=>{
             if (!email.value.trim()|| !password.value.trim()) {
                 console.log('Campos vacios');
                 return;
             }
             try {
-                
+                if(!acceder.value){
+                    const usuario = await auth.createUserWithEmailAndPassword(email.value,password.value);
+                    console.log(usuario.user);
+                }else{
+                    const usuario = await auth.signInWithEmailAndPassword(email.value, password.value);
+                    console.log(usuario.user);
+                }
+                email.value = '';
+                password.value = '';
             } catch (error) {
                 console.log(error);
             }
@@ -43,7 +54,7 @@ export default {
             email,
             password,
             procesarFormulario,
-            acceder
+            acceder,
         }
     }
 }
