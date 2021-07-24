@@ -23,7 +23,7 @@
 </template>
 <script>
 import { ref } from 'vue'
-import { auth } from 'boot/firebase'
+import { auth,db } from 'boot/firebase'
 
 export default {
     setup(){
@@ -39,10 +39,16 @@ export default {
             try {
                 if(!acceder.value){
                     const usuario = await auth.createUserWithEmailAndPassword(email.value,password.value);
-                    console.log(usuario.user);
+                    await db.collection('users').doc(usuario.user.uid).set({
+                        email:usuario.user.email,
+                        estado:true,
+                        uid:usuario.user.uid
+                    });
                 }else{
                     const usuario = await auth.signInWithEmailAndPassword(email.value, password.value);
-                    console.log(usuario.user);
+                    await db.collection('users').doc(usuario.user.uid).update({
+                        estado:true
+                    })
                 }
                 email.value = '';
                 password.value = '';

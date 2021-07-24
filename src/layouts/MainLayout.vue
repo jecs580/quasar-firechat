@@ -22,7 +22,7 @@
 import firebase from 'firebase'
 import { useAuth } from '@vueuse/firebase/useAuth'
 import { ref } from 'vue'
-import { auth } from 'boot/firebase'
+import { auth, db } from 'boot/firebase'
 export default {
   name: 'MainLayout',
 
@@ -33,7 +33,10 @@ export default {
     const { isAuthenticated, user } = useAuth(firebase.auth)
     const salir= async()=>{
       try {
-        auth.signOut();
+        await db.collection('users').doc(user.value.uid).update({
+          estado:false
+          })
+          auth.signOut();
       } catch (error) {
         console.log(error);
       }
