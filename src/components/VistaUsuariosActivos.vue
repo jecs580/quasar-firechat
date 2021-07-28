@@ -19,12 +19,12 @@
     </q-page-sticky>
 </template>
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
 import { db, auth } from 'boot/firebase'
 import { useAuth } from '@vueuse/firebase'
 export default {
-    setup() {
-        const uidSeleccionado = ref('mails');
+    setup() { 
+        const uidSeleccionado = inject('uidSeleccionado');
         const users = ref([]);
         const {user} = useAuth(auth)
         db.collection('users').onSnapshot((snapshot)=>{

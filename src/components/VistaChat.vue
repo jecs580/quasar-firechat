@@ -20,10 +20,14 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, inject, watchEffect } from 'vue'
 export default {
     setup() {
     const message = ref('')
+    const uidSeleccionado = inject('uidSeleccionado');
+    watchEffect(()=>{
+        console.log(uidSeleccionado.value);
+    })
     return {
         message
     }

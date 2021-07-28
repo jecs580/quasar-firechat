@@ -14,6 +14,7 @@ import VistaUsuariosActivos from '../components/VistaUsuariosActivos.vue'
 import VistaChat from '../components/VistaChat.vue'
 import { useAuth } from '@vueuse/firebase'
 import firebase from 'firebase'
+import { provide, ref } from 'vue'
 export default {
   components:{
     VistaAcceso,
@@ -22,6 +23,8 @@ export default {
   },
   setup() {
     const { isAuthenticated, user } = useAuth(firebase.auth)
+    const  uidSeleccionado = ref('');
+    provide('uidSeleccionado', uidSeleccionado)
     return {
       isAuthenticated
     }
