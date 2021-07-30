@@ -3,12 +3,14 @@
         <div class="q-pa-md row justify-center ">
         <div style="width: 100%; max-width: 600px">
             <q-chat-message
-                :text="['hey, how are you?']"
-                sent
+                v-for="chat in chats" :key="chat.id"
+                :name="chat.user"
+                :text="[chat.texto]"
+                :sent="chat.uid === user.uid"
             />
-            <q-chat-message
+            <!-- <q-chat-message
                 :text="['doing fine, how r you?']"
-            />
+            /> -->
         </div>
     </div>
     <q-footer>
@@ -27,7 +29,7 @@
 </template>
 
 <script>
-import { ref, inject, watchEffect } from 'vue'
+import { ref, inject, watch } from 'vue'
 import { useAuth } from '@vueuse/firebase'
 import {  auth,db, marcaTiempo } from 'boot/firebase'
 export default {
@@ -35,9 +37,33 @@ export default {
         const message = ref('')
         const uidSeleccionado = inject('uidSeleccionado');
         const {user} = useAuth(auth)
-        watchEffect(()=>{
-            console.log(uidSeleccionado.value);
-        });
+        const chats = ref([]);
+        let unsubscribe;
+        const obtenerData = (uidDelUsuarioSeñeccionado)=>{
+            chats.value=[]
+            unsubscribe =  db.collection('chat')
+            .doc(user.value.uid)
+            .collection(uidDelUsuarioSeñeccionado)
+            .orderBy("fecha")
+            .onSnapshot((snapshot)=>{
+                snapshot.docChanges().forEach((change)=>{
+                    if(change.type ==='added'){
+                        console.log('New city',change.doc.data());
+                        chats.value.push({...change.doc.data(), id:change.doc.id})
+                    }
+                });
+            });
+        }
+        watch(()=>uidSeleccionado.value,(newUid)=>{
+            if(unsubscribe){
+                unsubscribe()
+                if(newUid){
+                    obtenerData(newUid);
+                }
+            }else{
+                obtenerData(newUid)
+            }
+        })
         const enviarMensaje= async()=>{
             try {
                 const objetoMensaje = {
@@ -64,6 +90,8 @@ export default {
             message,
             enviarMensaje,
             uidSeleccionado,
+            chats,
+            user
         }
     }
 }
