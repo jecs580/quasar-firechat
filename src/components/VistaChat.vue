@@ -1,5 +1,5 @@
 <template>
-   <div v-if="uidSeleccionado !== ''" class="q-mt-xl">
+   <div v-if="uidSeleccionado !== ''" class="q-mt-xl" ref="refChat">
         <div class="q-pa-md row justify-center ">
         <div style="width: 100%; max-width: 600px">
             <q-chat-message
@@ -38,9 +38,10 @@ export default {
         const uidSeleccionado = inject('uidSeleccionado');
         const {user} = useAuth(auth)
         const chats = ref([]);
+        const refChat= ref(null)
         let unsubscribe;
         const obtenerData = (uidDelUsuarioSeñeccionado)=>{
-            chats.value=[]
+            chats.value=[ ]
             unsubscribe =  db.collection('chat')
             .doc(user.value.uid)
             .collection(uidDelUsuarioSeñeccionado)
@@ -49,8 +50,13 @@ export default {
                 snapshot.docChanges().forEach((change)=>{
                     if(change.type ==='added'){
                         console.log('New city',change.doc.data());
-                        chats.value.push({...change.doc.data(), id:change.doc.id})
+                        chats.value.push({...change.doc.data(), id:change.doc.id});
                     }
+                        if (refChat.value !== null) {
+                            setTimeout(()=>{
+                                window.scrollTo(0, refChat.value.scrollHeight)
+                            },50)
+                        }
                 });
             });
         }
@@ -65,6 +71,9 @@ export default {
             }
         })
         const enviarMensaje= async()=>{
+            if(!message.value.trim()){
+                return
+            }
             try {
                 const objetoMensaje = {
                     user:user.value.email,
@@ -91,7 +100,8 @@ export default {
             enviarMensaje,
             uidSeleccionado,
             chats,
-            user
+            user,
+            refChat
         }
     }
 }
